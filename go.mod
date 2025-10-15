@@ -1,6 +1,6 @@
 module github.com/doprdele/terraform-provider-slack-canvas
 
-go 1.25.3
+go 1.25
 
 require (
 	github.com/hashicorp/terraform-plugin-framework v1.16.1
