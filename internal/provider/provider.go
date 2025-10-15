@@ -73,7 +73,13 @@ func (p *slackCanvasProvider) Configure(ctx context.Context, req provider.Config
 
 // DataSources defines the data sources implemented in the provider.
 func (p *slackCanvasProvider) DataSources(_ context.Context) []func() datasource.DataSource {
-	return nil
+	return []func() datasource.DataSource{
+		func() datasource.DataSource {
+			return &userCanvasDataSource{
+				client: p.client,
+			}
+		},
+	}
 }
 
 // Resources defines the resources implemented in the provider.

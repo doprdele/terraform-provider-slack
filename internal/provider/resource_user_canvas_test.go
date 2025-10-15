@@ -25,6 +25,27 @@ func TestAccUserCanvasResource(t *testing.T) {
 					resource.TestCheckResourceAttr("slack_user_canvas.test", "content", "new content"),
 				),
 			},
+			// Delete testing
+			{
+				Config:  testAccUserCanvasResourceConfig("new content"),
+				Destroy: true,
+			},
+		},
+	})
+}
+
+func TestAccUserCanvasResource_withChannelID(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			// Create and Read testing
+			{
+				Config: testAccUserCanvasResourceWithChannelConfig(),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("slack_user_canvas.test", "channel_id", "C07R5HJUBNX"),
+				),
+			},
 		},
 	})
 }
@@ -38,6 +59,20 @@ provider "slack" {
 
 resource "slack_user_canvas" "test" {
 	content    = "` + content + `"
+}
+`
+}
+
+func testAccUserCanvasResourceWithChannelConfig() string {
+	return `
+provider "slack" {
+  slack_token     = "test-token"
+  slack_workspace = "test-workspace"
+}
+
+resource "slack_user_canvas" "test" {
+	content    = "test content"
+	channel_id = "C07R5HJUBNX"
 }
 `
 }

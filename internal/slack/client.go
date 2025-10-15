@@ -45,6 +45,16 @@ type Canvas struct {
 	Content string `json:"content"`
 }
 
+// FileInfo represents the metadata of a Slack file (canvas).
+type FileInfo struct {
+	ID       string `json:"id"`
+	Group    string `json:"group"`
+	IsPublic bool   `json:"is_public"`
+	Shares   struct {
+		Private map[string][]string `json:"private"`
+	} `json:"shares"`
+}
+
 type apiResponse struct {
 	Ok    bool   `json:"ok"`
 	Error string `json:"error"`
@@ -91,13 +101,13 @@ func (c *Client) CreateCanvas(content, channelID string) (string, error) {
 	}
 
 	var result struct {
-		ID string `json:"id"`
+		CanvasID string `json:"canvas_id"`
 	}
 	if err := json.Unmarshal(body, &result); err != nil {
 		return "", err
 	}
 
-	return result.ID, nil
+	return result.CanvasID, nil
 }
 
 func (c *Client) ReadCanvas(id string) (*Canvas, error) {
@@ -250,4 +260,50 @@ func (c *Client) DeleteUserCanvas(id string) error {
 	}
 
 	return nil
+}
+
+func (c *Client) GetFileInfo(fileID string) (*FileInfo, error) {
+	rel, err := url.Parse(fmt.Sprintf("/api/files.info?file=%s", fileID))
+	if err != nil {
+		return nil, err
+	}
+	url := c.baseURL.ResolveReference(rel)
+
+	req, err := http.NewRequest("GET", url.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.token))
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	fmt.Printf("Slack API Response: %s\n", string(body))
+
+	var apiResp apiResponse
+	if err := json.Unmarshal(body, &apiResp); err != nil {
+		return nil, err
+	}
+
+	if !apiResp.Ok {
+		return nil, fmt.Errorf("slack API error: %s", apiResp.Error)
+	}
+
+	var result struct {
+		File FileInfo `json:"file"`
+	}
+	if err := json.Unmarshal(body, &result); err != nil {
+		return nil, err
+	}
+
+	return &result.File, nil
 }
