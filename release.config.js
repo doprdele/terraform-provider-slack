@@ -8,12 +8,12 @@ module.exports = {
     }],
     ['@semantic-release/github', {
       assets: [
-        { path: 'terraform-provider-slack*.zip', label: 'Terraform Provider Binaries' },
+        { path: 'terraform-provider-slack_v*.zip' },
       ]
     }],
     ['@semantic-release/git', {
       assets: ['go.mod', 'go.sum'],
-      message: 'chore(release): ${nextRelease.version} [ci skip]\n\n${nextRelease.notes}'
-    }]
+      message: 'chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}',
+    }],
   ]
 };

@@ -12,9 +12,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Set up Go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v5
         with:
           go-version: '1.22'
       - name: Run tests
@@ -29,30 +29,23 @@ jobs:
     needs: test
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Set up Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v5
         with:
           go-version: '1.22'
-      - name: Build
-        run: |
-          go build -o terraform-provider-slack_v${{ github.ref_name }}
-          GOOS=linux GOARCH=amd64 go build -o terraform-provider-slack_v${{ github.ref_name }}_linux_amd64
-          GOOS=windows GOARCH=amd64 go build -o terraform-provider-slack_v${{ github.ref_name }}_windows_amd64.exe
-          GOOS=darwin GOARCH=amd64 go build -o terraform-provider-slack_v${{ github.ref_name }}_darwin_amd64
-      - name: Package
-        run: |
-          zip terraform-provider-slack_v${{ github.ref_name }}_linux_amd64.zip terraform-provider-slack_v${{ github.ref_name }}_linux_amd64
-          zip terraform-provider-slack_v${{ github.ref_name }}_windows_amd64.zip terraform-provider-slack_v${{ github.ref_name }}_windows_amd64.exe
-          zip terraform-provider-slack_v${{ github.ref_name }}_darwin_amd64.zip terraform-provider-slack_v${{ github.ref_name }}_darwin_amd64
       - name: Setup Node.js
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v4
         with:
-          node-version: 16
+          node-version: 18
       - name: Install dependencies
-        run: npm install -g semantic-release @semantic-release/git @semantic-release/github
+        run: npm install -g semantic-release @semantic-release/git @semantic-release/github @semantic-release/exec
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
