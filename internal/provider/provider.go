@@ -80,7 +80,12 @@ func (p *slackCanvasProvider) DataSources(_ context.Context) []func() datasource
 func (p *slackCanvasProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		func() resource.Resource {
-			return &canvasResource{
+			return &channelCanvasResource{
+				client: p.client,
+			}
+		},
+		func() resource.Resource {
+			return &userCanvasResource{
 				client: p.client,
 			}
 		},

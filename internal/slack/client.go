@@ -50,8 +50,6 @@ type apiResponse struct {
 	Error string `json:"error"`
 }
 
-
-
 func (c *Client) CreateCanvas(content, channelID string) (string, error) {
 	rel, err := url.Parse("/api/conversations.canvases.create")
 	if err != nil {
@@ -108,8 +106,148 @@ func (c *Client) ReadCanvas(id string) (*Canvas, error) {
 	return &Canvas{ID: id, Content: ""}, nil
 }
 
+func (c *Client) CreateUserCanvas(content, channelID string, private bool, userIDs []string) (string, error) {
+	rel, err := url.Parse("/api/canvases.create")
+	if err != nil {
+		return "", err
+	}
+	url := c.baseURL.ResolveReference(rel)
 
+	values := map[string]interface{}{
+		"document_content": map[string]string{"type": "markdown", "markdown": content},
+	}
+	if channelID != "" {
+		values["channel_id"] = channelID
+	}
+	if private {
+		values["private"] = private
+		values["user_ids"] = userIDs
+	}
 
+	jsonValue, _ := json.Marshal(values)
 
+	req, err := http.NewRequest("POST", url.String(), bytes.NewBuffer(jsonValue))
+	if err != nil {
+		return "", err
+	}
 
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.token))
+	req.Header.Set("Content-Type", "application/json")
 
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+
+	fmt.Printf("Slack API Response: %s\n", string(body))
+
+	var apiResp apiResponse
+	if err := json.Unmarshal(body, &apiResp); err != nil {
+		return "", err
+	}
+
+	if !apiResp.Ok {
+		return "", fmt.Errorf("slack API error: %s", apiResp.Error)
+	}
+
+	var result struct {
+		CanvasID string `json:"canvas_id"`
+	}
+	if err := json.Unmarshal(body, &result); err != nil {
+		return "", err
+	}
+
+	return result.CanvasID, nil
+}
+
+func (c *Client) UpdateUserCanvas(id, content string) error {
+	rel, err := url.Parse("/api/canvases.edit")
+	if err != nil {
+		return err
+	}
+	url := c.baseURL.ResolveReference(rel)
+
+	values := map[string]interface{}{"canvas_id": id, "changes": []map[string]interface{}{{"operation": "replace", "document_content": map[string]string{"type": "markdown", "markdown": content}}}}
+	jsonValue, _ := json.Marshal(values)
+
+	req, err := http.NewRequest("POST", url.String(), bytes.NewBuffer(jsonValue))
+	if err != nil {
+		return err
+	}
+
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.token))
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("Slack API Response: %s\n", string(body))
+
+	var apiResp apiResponse
+	if err := json.Unmarshal(body, &apiResp); err != nil {
+		return err
+	}
+
+	if !apiResp.Ok {
+		return fmt.Errorf("slack API error: %s", apiResp.Error)
+	}
+
+	return nil
+}
+
+func (c *Client) DeleteUserCanvas(id string) error {
+	rel, err := url.Parse("/api/canvases.delete")
+	if err != nil {
+		return err
+	}
+	url := c.baseURL.ResolveReference(rel)
+
+	values := map[string]interface{}{"canvas_id": id}
+	jsonValue, _ := json.Marshal(values)
+
+	req, err := http.NewRequest("POST", url.String(), bytes.NewBuffer(jsonValue))
+	if err != nil {
+		return err
+	}
+
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.token))
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("Slack API Response: %s\n", string(body))
+
+	var apiResp apiResponse
+	if err := json.Unmarshal(body, &apiResp); err != nil {
+		return err
+	}
+
+	if !apiResp.Ok {
+		return fmt.Errorf("slack API error: %s", apiResp.Error)
+	}
+
+	return nil
+}
