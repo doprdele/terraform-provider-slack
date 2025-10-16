@@ -70,6 +70,12 @@ jobs:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           fingerprint: ${{ secrets.GPG_FINGERPRINT }}
           passphrase: ${{ secrets.GPG_PASSPHRASE }}
+      - name: Enable GPG loopback pinentry
+        run: |
+          mkdir -p ~/.gnupg
+          echo 'allow-loopback-pinentry' >> ~/.gnupg/gpg-agent.conf
+          gpgconf --kill gpg-agent || true
+          gpgconf --reload gpg-agent || true
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

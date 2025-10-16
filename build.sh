@@ -24,6 +24,16 @@ if ! gpg --batch --list-secret-keys "$GPG_FINGERPRINT" >/dev/null 2>&1; then
   exit 1
 fi
 
+# Ensure a passphrase is provided for passphrase-protected keys in CI.
+# You can override this check if your key is intentionally unprotected by
+# setting ALLOW_EMPTY_GPG_PASSPHRASE=1 in the environment.
+if [ -z "${GPG_PASSPHRASE:-}" ] && [ "${ALLOW_EMPTY_GPG_PASSPHRASE:-}" != "1" ]; then
+  echo "GPG_PASSPHRASE is not set. If your key is passphrase-protected, signing will fail in CI." >&2
+  echo "Set the repository secret GPG_PASSPHRASE and expose it to the release step." >&2
+  echo "If your key has no passphrase and this is intentional, set ALLOW_EMPTY_GPG_PASSPHRASE=1 to continue." >&2
+  exit 1
+fi
+
 # Clean up any previous build artifacts.
 rm -f terraform-provider-slack_v*.zip SHA256SUMS SHA256SUMS.sig terraform-registry-manifest.json
 
