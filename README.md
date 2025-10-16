@@ -33,3 +33,7 @@ data "slack_user_canvas" "example" {
 ## Data Sources
 
 - [slack_user_canvas](./docs/data-sources/user_canvas.md)
+
+## Author
+
+- Evan Sarmiento
