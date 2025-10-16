@@ -1,0 +1,59 @@
+version: 2
+project_name: terraform-provider-slack-canvas
+
+builds:
+  - id: terraform-provider-slack-canvas
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    main: .
+    ldflags:
+      - -s -w
+    binary: terraform-provider-slack-canvas_v{{ .Version }}
+
+archives:
+  - id: terraform-provider-slack-canvas
+    builds:
+      - terraform-provider-slack-canvas
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format: zip
+    files:
+      - LICENSE
+      - README.md
+      - docs/**/*
+
+checksum:
+  name_template: "{{ .ProjectName }}_{{ .Version }}_SHA256SUMS"
+  algorithm: sha256
+
+signs:
+  - artifacts:
+      - checksum
+    args:
+      - "--batch"
+      - "--local-user"
+      - "{{ .Env.GPG_FINGERPRINT }}"
+      - "--output"
+      - "${signature}"
+      - "--detach-sign"
+      - "${artifact}"
+
+release:
+  github:
+    owner: doprdele
+    name: terraform-provider-slack-canvas
+  prerelease: auto
+
+changelog:
+  sort: asc
+  filters:
+    first-pull-request: true
+    exclude:
+      - '^docs:'
+      - '^test:'
+      - Merge pull request
+      - Merge branch
