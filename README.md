@@ -36,7 +36,7 @@ data "slack_user_canvas" "example" {
 
 ## Release Process
 
-Releases are automated via the `Test and Release` GitHub Actions workflow. Successful pushes to `main` run tests, build provider binaries for Linux, macOS, and Windows (amd64/arm64), generate the `SHA256SUMS` manifest, and sign it with the OpenPGP key identified by the `GPG_FINGERPRINT` secret. Semantic-release creates a `v<major>.<minor>.<patch>` tag and GitHub release containing the required Terraform/OpenTofu assets.
+Releases are automated via the `Test and Release` GitHub Actions workflow. Successful pushes to `main` run tests, build provider binaries for Linux, macOS, and Windows (amd64/arm64), generate the `SHA256SUMS` manifest, and sign it with the OpenPGP key identified by the `GPG_FINGERPRINT` secret. The build now also exports the public key, synthesises the `terraform-registry-manifest.json`, and attaches it to the GitHub release so Terraform/OpenTofu registries have all required metadata. If your signing key is passphrase protected, store it in the `GPG_PASSPHRASE` secret so the workflow can sign non-interactively.
 
 ## Author
 
