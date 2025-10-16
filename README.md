@@ -28,7 +28,6 @@ data "slack_user_canvas" "example" {
 
 ## Resources
 
-- [slack_channel_canvas](./docs/resources/channel_canvas.md)
 - [slack_user_canvas](./docs/resources/user_canvas.md)
 
 ## Data Sources

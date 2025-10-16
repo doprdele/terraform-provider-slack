@@ -3,18 +3,18 @@
 page_title: "slack_user_canvas Resource - slack"
 subcategory: ""
 description: |-
-  Manages a Slack canvas.
+  
 ---
 
 # slack_user_canvas (Resource)
 
-Manages a Slack canvas.
+
 
 ## Example Usage
 
 ```terraform
 resource "slack_user_canvas" "example" {
-  content = "# Hello, World!\n\nThis is a canvas managed by Terraform."
+  content    = "# Hello, World!\n\nThis is a canvas managed by Terraform."
 }
 ```
 
@@ -23,13 +23,13 @@ resource "slack_user_canvas" "example" {
 
 ### Required
 
-- `content` (String) The content of the canvas in markdown format.
+- `content` (String)
 
 ### Optional
 
-- `channel_id` (String) The channel ID to create the canvas in.
-- `private` (Boolean) Whether the canvas is private. Defaults to `false`.
-- `user_ids` (List of String) The user IDs to share the canvas with. This is only applicable when `private` is `true`.
+- `channel_id` (String)
+- `private` (Boolean)
+- `user_ids` (List of String)
 
 ### Read-Only
 
