@@ -17,8 +17,13 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: '1.25.3'
-          cache: true
-          cache-dependency-path: go.sum
+      - name: Cache Go modules
+        uses: actions/cache@v4
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
       - name: Run tests
         env:
           TF_ACC: "1"
@@ -42,14 +47,24 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: '1.25.3'
-          cache: true
-          cache-dependency-path: go.sum
+      - name: Cache Go modules
+        uses: actions/cache@v4
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 18
       - name: Install dependencies
         run: npm install -g semantic-release @semantic-release/git @semantic-release/github @semantic-release/exec
+      - name: Import GPG key
+        uses: crazy-max/ghaction-import-gpg@v6
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.GPG_PASSPHRASE }}
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

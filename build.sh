@@ -1,22 +1,48 @@
 #!/bin/sh
 set -e
 
+# This script is called by semantic-release to build and package the provider.
+
+# Get the version from the command line argument.
 VERSION=$1
 if [ -z "$VERSION" ]; then
-  echo "Version not provided"
+  echo "Usage: ./build.sh <version>"
   exit 1
 fi
 
-echo "Building version $VERSION"
+# Clean up any previous build artifacts.
+rm -f terraform-provider-slack*.zip SHA256SUMS SHA256SUMS.sig
 
-rm -f terraform-provider-slack*.zip
+# A function to build and zip for a given OS and architecture.
+build_and_zip() {
+  OS=$1
+  ARCH=$2
+  echo "Building for $OS/$ARCH..."
 
-GOOS=linux GOARCH=amd64 go build -o "terraform-provider-slack_v${VERSION}_linux_amd64"
-GOOS=windows GOARCH=amd64 go build -o "terraform-provider-slack_v${VERSION}_windows_amd64.exe"
-GOOS=darwin GOARCH=amd64 go build -o "terraform-provider-slack_v${VERSION}_darwin_amd64"
+  # Set the output binary name.
+  BINARY_NAME="terraform-provider-slack_v${VERSION}_${OS}_${ARCH}"
+  if [ "$OS" = "windows" ]; then
+    BINARY_NAME="${BINARY_NAME}.exe"
+  fi
 
-zip "terraform-provider-slack_v${VERSION}_linux_amd64.zip" "terraform-provider-slack_v${VERSION}_linux_amd64"
-zip "terraform-provider-slack_v${VERSION}_windows_amd64.zip" "terraform-provider-slack_v${VERSION}_windows_amd64.exe"
-zip "terraform-provider-slack_v${VERSION}_darwin_amd64.zip" "terraform-provider-slack_v${VERSION}_darwin_amd64"
+  # Build the binary.
+  GOOS=$OS GOARCH=$ARCH go build -o "$BINARY_NAME"
 
-rm terraform-provider-slack_v*_*
+  # Create the zip file.
+  zip "terraform-provider-slack_v${VERSION}_${OS}_${ARCH}.zip" "$BINARY_NAME"
+
+  # Clean up the binary.
+  rm "$BINARY_NAME"
+}
+
+# Build for all target platforms.
+build_and_zip linux amd64
+build_and_zip linux arm64
+build_and_zip windows amd64
+build_and_zip windows arm64
+build_and_zip darwin amd64
+build_and_zip darwin arm64
+
+# Generate the SHA256SUMS file.
+echo "Generating SHA256SUMS..."
+sha256sum terraform-provider-slack_v*.zip > SHA256SUMS
