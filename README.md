@@ -34,6 +34,10 @@ data "slack_user_canvas" "example" {
 
 - [slack_user_canvas](./docs/data-sources/user_canvas.md)
 
+## Release Process
+
+Releases are automated via the `Test and Release` GitHub Actions workflow. Successful pushes to `main` run tests, build provider binaries for Linux, macOS, and Windows (amd64/arm64), generate the `SHA256SUMS` manifest, and sign it with the OpenPGP key identified by the `GPG_FINGERPRINT` secret. Semantic-release creates a `v<major>.<minor>.<patch>` tag and GitHub release containing the required Terraform/OpenTofu assets.
+
 ## Author
 
 - Evan Sarmiento

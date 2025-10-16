@@ -1,10 +1,11 @@
 module.exports = {
   branches: ['main'],
+  tagFormat: 'v${version}',
   plugins: [
     '@semantic-release/commit-analyzer',
     '@semantic-release/release-notes-generator',
     ['@semantic-release/exec', {
-      prepareCmd: './build.sh ${nextRelease.version} && gpg --clearsign --armor --batch --yes --output SHA256SUMS.sig SHA256SUMS',
+      prepareCmd: './build.sh ${nextRelease.version}',
     }],
     ['@semantic-release/github', {
       assets: [
