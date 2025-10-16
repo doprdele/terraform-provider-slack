@@ -31,8 +31,7 @@ checksum:
   algorithm: sha256
 
 signs:
-  - artifacts:
-      - checksum
+  - artifacts: ["checksum"]
     args:
       - "--batch"
       - "--local-user"
@@ -51,7 +50,6 @@ release:
 changelog:
   sort: asc
   filters:
-    first-pull-request: true
     exclude:
       - '^docs:'
       - '^test:'
