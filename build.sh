@@ -59,9 +59,17 @@ build_and_zip() {
 	rm -f "$BINARY_NAME"
 }
 
+build_and_zip linux arm
 build_and_zip linux amd64
 build_and_zip linux arm64
+build_and_zip linux 386
+build_and_zip freebsd arm
+build_and_zip freebsd amd64
+build_and_zip freebsd arm64
+build_and_zip freebsd 386
+build_and_zip windows 386
 build_and_zip windows amd64
+build_and_zip windows arm
 build_and_zip windows arm64
 build_and_zip darwin amd64
 build_and_zip darwin arm64
