@@ -164,10 +164,12 @@ manifest = {
     "packages": dict(sorted(packages.items())),
 }
 
-with open("terraform-registry-manifest.json", "w", encoding="utf-8") as manifest_file:
+manifest_file = f"{prefix}manifest.json"
+
+with open(manifest_file, "w", encoding="utf-8") as manifest_file:
     json.dump(manifest, manifest_file, indent=2)
     manifest_file.write("\n")
 PY
 
 echo "Artifacts ready:"
-ls -1 terraform-provider-slack_v*.zip "${SHA256SUMS}" "${SHA256SUMS_SIG}" terraform-registry-manifest.json
+ls -1 terraform-provider-slack_v*.zip "${SHA256SUMS}" "${SHA256SUMS_SIG}" terraform-provider-slack_v*_manifest.json

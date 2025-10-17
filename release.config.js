@@ -12,7 +12,7 @@ module.exports = {
         { path: 'terraform-provider-slack_v*.zip' },
         { path: 'terraform-provider-slack_v*_SHA256SUMS' },
         { path: 'terraform-provider-slack_v*_SHA256SUMS.sig' },
-        { path: 'terraform-registry-manifest.json' },
+        { path: 'terraform-provider-slack_v*_manifest.json' },
       ]
     }],
     ['@semantic-release/git', {
