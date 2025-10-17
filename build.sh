@@ -34,6 +34,9 @@ if [ -z "${GPG_PASSPHRASE:-}" ] && [ "${ALLOW_EMPTY_GPG_PASSPHRASE:-}" != "1" ];
 	exit 1
 fi
 
+SHA256SUMS="terraform-provider-slack_v${VERSION}_SHA256SUMS"
+SHA256SUMS_SIG="${SHA256SUMS}.sig"
+
 # Clean up any previous build artifacts.
 rm -f terraform-provider-slack_v*.zip "${SHA256SUMS}" "${SHA256SUMS_SIG}" terraform-registry-manifest.json
 
@@ -64,9 +67,6 @@ build_and_zip darwin amd64
 build_and_zip darwin arm64
 
 echo "Generating SHA256SUMS..."
-
-SHA256SUMS="terraform-provider-slack_v${VERSION}_SHA256SUMS"
-SHA256SUMS_SIG="${SHA256SUMS}.sig"
 
 sha256sum terraform-provider-slack_v*.zip >"${SHA256SUMS}"
 
