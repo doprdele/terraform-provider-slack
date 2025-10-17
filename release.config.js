@@ -10,8 +10,8 @@ module.exports = {
     ['@semantic-release/github', {
       assets: [
         { path: 'terraform-provider-slack_v*.zip' },
-        { path: 'SHA256SUMS' },
-        { path: 'SHA256SUMS.sig' },
+        { path: 'terraform-provider-slack_v*_SHA256SUMS' },
+        { path: 'terraform-provider-slack_v*_SHA256SUMS.sig' },
         { path: 'terraform-registry-manifest.json' },
       ]
     }],
