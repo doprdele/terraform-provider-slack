@@ -35,7 +35,7 @@ if [ -z "${GPG_PASSPHRASE:-}" ] && [ "${ALLOW_EMPTY_GPG_PASSPHRASE:-}" != "1" ];
 fi
 
 # Clean up any previous build artifacts.
-rm -f terraform-provider-slack_v*.zip SHA256SUMS SHA256SUMS.sig terraform-registry-manifest.json
+rm -f terraform-provider-slack_v*.zip "${SHA256SUMS}" "${SHA256SUMS_SIG}" terraform-registry-manifest.json
 
 build_and_zip() {
 	OS=$1
@@ -64,20 +64,24 @@ build_and_zip darwin amd64
 build_and_zip darwin arm64
 
 echo "Generating SHA256SUMS..."
-sha256sum terraform-provider-slack_v*.zip >SHA256SUMS
+
+SHA256SUMS="terraform-provider-slack_v${VERSION}_SHA256SUMS"
+SHA256SUMS_SIG="${SHA256SUMS}.sig"
+
+sha256sum terraform-provider-slack_v*.zip >"${SHA256SUMS}"
 
 echo "Signing SHA256SUMS..."
 if [ -n "${GPG_PASSPHRASE:-}" ]; then
 	printf '%s' "${GPG_PASSPHRASE}" | gpg --batch --yes --armor --pinentry-mode loopback \
 		--passphrase-fd 0 --local-user "${GPG_FINGERPRINT}" \
-		--output SHA256SUMS.sig --detach-sign SHA256SUMS
+		--output "${SHA256SUMS_SIG}" --detach-sign "${SHA256SUMS}"
 else
 	gpg --batch --yes --armor --pinentry-mode loopback --local-user "${GPG_FINGERPRINT}" \
-		--output SHA256SUMS.sig --detach-sign SHA256SUMS
+		--output "${SHA256SUMS_SIG}" --detach-sign "${SHA256SUMS}"
 fi
 
 echo "Generating terraform-registry-manifest.json..."
-export VERSION GPG_FINGERPRINT
+export VERSION GPG_FINGERPRINT SHA256SUMS
 python3 <<'PY'
 import json
 import os
@@ -85,6 +89,7 @@ import subprocess
 
 version = os.environ["VERSION"]
 fingerprint = os.environ["GPG_FINGERPRINT"]
+sha256sum_path = os.environ["SHA256SUMS"]
 
 public_key = subprocess.run(
     ["gpg", "--armor", "--export", fingerprint],
@@ -115,7 +120,7 @@ if not key_id:
 packages = {}
 prefix = f"terraform-provider-slack_v{version}_"
 
-with open("SHA256SUMS", "r", encoding="utf-8") as sums_file:
+with open(sha256sum_path, "r", encoding="utf-8") as sums_file:
     for raw_line in sums_file:
         line = raw_line.strip()
         if not line:
@@ -157,4 +162,4 @@ with open("terraform-registry-manifest.json", "w", encoding="utf-8") as manifest
 PY
 
 echo "Artifacts ready:"
-ls -1 terraform-provider-slack_v*.zip SHA256SUMS SHA256SUMS.sig terraform-registry-manifest.json
+ls -1 terraform-provider-slack_v*.zip "${SHA256SUMS}" "${SHA256SUMS_SIG}" terraform-registry-manifest.json
