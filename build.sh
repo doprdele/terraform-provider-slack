@@ -76,7 +76,7 @@ build_and_zip darwin arm64
 
 echo "Generating SHA256SUMS..."
 
-sha256sum terraform-provider-slack_v*.zip >"${SHA256SUMS}"
+sha256sum terraform-provider-slack_*.zip >"${SHA256SUMS}"
 
 echo "Signing SHA256SUMS..."
 if [ -n "${GPG_PASSPHRASE:-}" ]; then
