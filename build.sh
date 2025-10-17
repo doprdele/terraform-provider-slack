@@ -5,55 +5,55 @@ set -eu
 
 VERSION=${1:-}
 if [ -z "$VERSION" ]; then
-  echo "Usage: ./build.sh <version>" >&2
-  exit 1
+	echo "Usage: ./build.sh <version>" >&2
+	exit 1
 fi
 
 if [ -z "${GPG_FINGERPRINT:-}" ]; then
-  echo "GPG_FINGERPRINT must be set to sign release artifacts." >&2
-  exit 1
+	echo "GPG_FINGERPRINT must be set to sign release artifacts." >&2
+	exit 1
 fi
 
 if ! command -v gpg >/dev/null 2>&1; then
-  echo "gpg is required to sign release artifacts." >&2
-  exit 1
+	echo "gpg is required to sign release artifacts." >&2
+	exit 1
 fi
 
 if ! gpg --batch --list-secret-keys "$GPG_FINGERPRINT" >/dev/null 2>&1; then
-  echo "No secret key found for fingerprint ${GPG_FINGERPRINT}. Did you import the key?" >&2
-  exit 1
+	echo "No secret key found for fingerprint ${GPG_FINGERPRINT}. Did you import the key?" >&2
+	exit 1
 fi
 
 # Ensure a passphrase is provided for passphrase-protected keys in CI.
 # You can override this check if your key is intentionally unprotected by
 # setting ALLOW_EMPTY_GPG_PASSPHRASE=1 in the environment.
 if [ -z "${GPG_PASSPHRASE:-}" ] && [ "${ALLOW_EMPTY_GPG_PASSPHRASE:-}" != "1" ]; then
-  echo "GPG_PASSPHRASE is not set. If your key is passphrase-protected, signing will fail in CI." >&2
-  echo "Set the repository secret GPG_PASSPHRASE and expose it to the release step." >&2
-  echo "If your key has no passphrase and this is intentional, set ALLOW_EMPTY_GPG_PASSPHRASE=1 to continue." >&2
-  exit 1
+	echo "GPG_PASSPHRASE is not set. If your key is passphrase-protected, signing will fail in CI." >&2
+	echo "Set the repository secret GPG_PASSPHRASE and expose it to the release step." >&2
+	echo "If your key has no passphrase and this is intentional, set ALLOW_EMPTY_GPG_PASSPHRASE=1 to continue." >&2
+	exit 1
 fi
 
 # Clean up any previous build artifacts.
 rm -f terraform-provider-slack_v*.zip SHA256SUMS SHA256SUMS.sig terraform-registry-manifest.json
 
 build_and_zip() {
-  OS=$1
-  ARCH=$2
+	OS=$1
+	ARCH=$2
 
-  echo "Building for ${OS}/${ARCH}..."
+	echo "Building for ${OS}/${ARCH}..."
 
-  BINARY_NAME="terraform-provider-slack_v${VERSION}_${OS}_${ARCH}"
-  if [ "$OS" = "windows" ]; then
-    BINARY_NAME="${BINARY_NAME}.exe"
-  fi
+	BINARY_NAME="terraform-provider-slack_v${VERSION}_${OS}_${ARCH}"
+	if [ "$OS" = "windows" ]; then
+		BINARY_NAME="${BINARY_NAME}.exe"
+	fi
 
-  CGO_ENABLED=0 GOOS="$OS" GOARCH="$ARCH" \
-    go build -trimpath -ldflags="-s -w" -o "$BINARY_NAME" .
+	CGO_ENABLED=0 GOOS="$OS" GOARCH="$ARCH" \
+		go build -trimpath -ldflags="-s -w" -o "$BINARY_NAME" .
 
-  zip -9 "terraform-provider-slack_v${VERSION}_${OS}_${ARCH}.zip" "$BINARY_NAME"
+	zip -9 "terraform-provider-slack_v${VERSION}_${OS}_${ARCH}.zip" "$BINARY_NAME"
 
-  rm -f "$BINARY_NAME"
+	rm -f "$BINARY_NAME"
 }
 
 build_and_zip linux amd64
@@ -64,16 +64,16 @@ build_and_zip darwin amd64
 build_and_zip darwin arm64
 
 echo "Generating SHA256SUMS..."
-sha256sum terraform-provider-slack_v*.zip > SHA256SUMS
+sha256sum terraform-provider-slack_v*.zip >SHA256SUMS
 
 echo "Signing SHA256SUMS..."
 if [ -n "${GPG_PASSPHRASE:-}" ]; then
-  printf '%s' "${GPG_PASSPHRASE}" | gpg --batch --yes --armor --pinentry-mode loopback \
-    --passphrase-fd 0 --local-user "${GPG_FINGERPRINT}" \
-    --output SHA256SUMS.sig --detach-sign SHA256SUMS
+	printf '%s' "${GPG_PASSPHRASE}" | gpg --batch --yes --armor --pinentry-mode loopback \
+		--passphrase-fd 0 --local-user "${GPG_FINGERPRINT}" \
+		--output SHA256SUMS.sig --detach-sign SHA256SUMS
 else
-  gpg --batch --yes --armor --pinentry-mode loopback --local-user "${GPG_FINGERPRINT}" \
-    --output SHA256SUMS.sig --detach-sign SHA256SUMS
+	gpg --batch --yes --armor --pinentry-mode loopback --local-user "${GPG_FINGERPRINT}" \
+		--output SHA256SUMS.sig --detach-sign SHA256SUMS
 fi
 
 echo "Generating terraform-registry-manifest.json..."

@@ -18,7 +18,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.25.3'
+          go-version: "1.25.3"
       - name: Cache Go modules
         uses: actions/cache@v4
         with:
@@ -50,7 +50,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.25.3'
+          go-version: "1.25.3"
       - name: Cache Go modules
         uses: actions/cache@v4
         with:
@@ -59,34 +59,20 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: 18
+          node-version: 24
       - name: Install dependencies
         run: npm install -g semantic-release @semantic-release/git @semantic-release/github @semantic-release/exec
-      - name: Set GNUPG env
-        run: echo "GNUPGHOME=$RUNNER_TEMP/gnupg" >> "$GITHUB_ENV"
-      - name: Prepare GnuPG home
-        run: |
-          install -d -m 700 "$GNUPGHOME"
       - name: Import GPG key
         id: import_gpg
         uses: crazy-max/ghaction-import-gpg@v6
-        env:
-          GNUPGHOME: ${{ env.GNUPGHOME }}
         with:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.GPG_PASSPHRASE }}
-      - name: Enable GPG loopback pinentry
-        env:
-          GNUPGHOME: ${{ env.GNUPGHOME }}
-        run: |
-          echo 'allow-loopback-pinentry' >> "$GNUPGHOME/gpg-agent.conf"
-          gpgconf --kill gpg-agent || true
-          gpgconf --reload gpg-agent || true
+          git_user_signingkey: true
       - name: Release
         env:
-          GNUPGHOME: ${{ env.GNUPGHOME }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
