@@ -5,7 +5,7 @@ import (
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
-	"github.com/doprdele/terraform-provider-slack-canvas/internal/provider"
+	"github.com/doprdele/terraform-provider-slack/internal/provider"
 )
 
 // Run the docs generation tool, check its repository for more information on how it works and how docs
@@ -14,7 +14,7 @@ import (
 
 func main() {
 	err := providerserver.Serve(context.Background(), provider.New, providerserver.ServeOpts{
-		Address: "github.com/doprdele/terraform-provider-slack-canvas",
+		Address: "github.com/doprdele/terraform-provider-slack",
 	})
 	if err != nil {
 		log.Fatal(err)

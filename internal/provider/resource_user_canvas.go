@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/doprdele/terraform-provider-slack-canvas/internal/slack"
+	"github.com/doprdele/terraform-provider-slack/internal/slack"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"

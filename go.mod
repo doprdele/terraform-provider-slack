@@ -1,4 +1,4 @@
-module github.com/doprdele/terraform-provider-slack-canvas
+module github.com/doprdele/terraform-provider-slack
 
 go 1.25
 
