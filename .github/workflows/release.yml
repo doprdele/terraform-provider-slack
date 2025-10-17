@@ -42,8 +42,6 @@ jobs:
       contents: write
       issues: write
       pull-requests: write
-    env:
-      GNUPGHOME: ${{ runner.temp }}/gnupg
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -66,6 +64,8 @@ jobs:
           node-version: 18
       - name: Install dependencies
         run: npm install -g semantic-release @semantic-release/git @semantic-release/github @semantic-release/exec
+      - name: Set GNUPG env
+        run: echo "GNUPGHOME=$RUNNER_TEMP/gnupg" >> "$GITHUB_ENV"
       - name: Prepare GnuPG home
         run: |
           install -d -m 700 "$GNUPGHOME"
