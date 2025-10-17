@@ -42,6 +42,8 @@ jobs:
       contents: write
       issues: write
       pull-requests: write
+    env:
+      GNUPGHOME: ${{ runner.temp }}/gnupg
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -64,22 +66,29 @@ jobs:
           node-version: 18
       - name: Install dependencies
         run: npm install -g semantic-release @semantic-release/git @semantic-release/github @semantic-release/exec
+      - name: Prepare GnuPG home
+        run: |
+          install -d -m 700 "$GNUPGHOME"
       - name: Import GPG key
+        id: import_gpg
         uses: crazy-max/ghaction-import-gpg@v6
+        env:
+          GNUPGHOME: ${{ env.GNUPGHOME }}
         with:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
-          fingerprint: ${{ secrets.GPG_FINGERPRINT }}
           passphrase: ${{ secrets.GPG_PASSPHRASE }}
       - name: Enable GPG loopback pinentry
+        env:
+          GNUPGHOME: ${{ env.GNUPGHOME }}
         run: |
-          mkdir -p ~/.gnupg
-          echo 'allow-loopback-pinentry' >> ~/.gnupg/gpg-agent.conf
+          echo 'allow-loopback-pinentry' >> "$GNUPGHOME/gpg-agent.conf"
           gpgconf --kill gpg-agent || true
           gpgconf --reload gpg-agent || true
       - name: Release
         env:
+          GNUPGHOME: ${{ env.GNUPGHOME }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GPG_FINGERPRINT: ${{ secrets.GPG_FINGERPRINT }}
+          GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: npx semantic-release
