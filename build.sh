@@ -34,11 +34,11 @@ if [ -z "${GPG_PASSPHRASE:-}" ] && [ "${ALLOW_EMPTY_GPG_PASSPHRASE:-}" != "1" ];
 	exit 1
 fi
 
-SHA256SUMS="terraform-provider-slack_v${VERSION}_SHA256SUMS"
+SHA256SUMS="terraform-provider-slack_${VERSION}_SHA256SUMS"
 SHA256SUMS_SIG="${SHA256SUMS}.sig"
 
 # Clean up any previous build artifacts.
-rm -f terraform-provider-slack_v*.zip "${SHA256SUMS}" "${SHA256SUMS_SIG}" terraform-registry-manifest.json
+rm -f terraform-provider-slack_*.zip "${SHA256SUMS}" "${SHA256SUMS_SIG}" terraform-registry-manifest.json
 
 build_and_zip() {
 	OS=$1
@@ -54,7 +54,7 @@ build_and_zip() {
 	CGO_ENABLED=0 GOOS="$OS" GOARCH="$ARCH" \
 		go build -trimpath -ldflags="-s -w" -o "$BINARY_NAME" .
 
-	zip -9 "terraform-provider-slack_v${VERSION}_${OS}_${ARCH}.zip" "$BINARY_NAME"
+	zip -9 "terraform-provider-slack_${VERSION}_${OS}_${ARCH}.zip" "$BINARY_NAME"
 
 	rm -f "$BINARY_NAME"
 }
@@ -126,7 +126,7 @@ if not key_id:
     raise SystemExit("Unable to determine GPG key id.")
 
 packages = {}
-prefix = f"terraform-provider-slack_v{version}_"
+prefix = f"terraform-provider-slack_{version}_"
 
 with open(sha256sum_path, "r", encoding="utf-8") as sums_file:
     for raw_line in sums_file:
@@ -172,4 +172,4 @@ with open(manifest_file, "w", encoding="utf-8") as manifest_file:
 PY
 
 echo "Artifacts ready:"
-ls -1 terraform-provider-slack_v*.zip "${SHA256SUMS}" "${SHA256SUMS_SIG}" terraform-provider-slack_v*_manifest.json
+ls -1 terraform-provider-slack_*.zip "${SHA256SUMS}" "${SHA256SUMS_SIG}" terraform-provider-slack_*_manifest.json
