@@ -172,4 +172,4 @@ with open(manifest_file, "w", encoding="utf-8") as manifest_file:
 PY
 
 echo "Artifacts ready:"
-ls -1 terraform-provider-slack_*.zip "${SHA256SUMS}" "${SHA256SUMS_SIG}" terraform-provider-slack_*_manifest.json
+ls -1 terraform-provider-slack_*.zip "${SHA256SUMS}" "${SHA256SUMS_SIG}"
