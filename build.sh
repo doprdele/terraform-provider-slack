@@ -80,11 +80,11 @@ sha256sum terraform-provider-slack_*.zip >"${SHA256SUMS}"
 
 echo "Signing SHA256SUMS..."
 if [ -n "${GPG_PASSPHRASE:-}" ]; then
-	printf '%s' "${GPG_PASSPHRASE}" | gpg --batch --yes --armor --pinentry-mode loopback \
+	printf '%s' "${GPG_PASSPHRASE}" | gpg --batch --yes --pinentry-mode loopback \
 		--passphrase-fd 0 --local-user "${GPG_FINGERPRINT}" \
 		--output "${SHA256SUMS_SIG}" --detach-sign "${SHA256SUMS}"
 else
-	gpg --batch --yes --armor --pinentry-mode loopback --local-user "${GPG_FINGERPRINT}" \
+	gpg --batch --yes --pinentry-mode loopback --local-user "${GPG_FINGERPRINT}" \
 		--output "${SHA256SUMS_SIG}" --detach-sign "${SHA256SUMS}"
 fi
 
